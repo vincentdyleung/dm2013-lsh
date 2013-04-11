@@ -70,11 +70,7 @@ public class GetDuplicates {
       for (String cand1 : candidates) {
         for (String cand2 : candidates) {
           if (!cand1.equals(cand2)) {
-            if (cand1.compareTo(cand2) < 0) {
-              output.collect(new Text(cand1), new Text(cand2));
-            } else {
-              output.collect(new Text(cand2), new Text(cand1));
-            }
+            output.collect(new Text(cand1), new Text(cand2));
           }
         }
       }

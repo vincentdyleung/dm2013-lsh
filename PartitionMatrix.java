@@ -48,10 +48,10 @@ public class PartitionMatrix {
     final int MAX_COEF = (1 << 20);
 
     // Decide on the number of bands.
-    final int NBANDS = 6;
+    final int NBANDS = 12;
 
     // Decide on the number of rows inside each band.
-    final int NROWS = 20;
+    final int NROWS = 10;
 
     // Seed for the random number generator, used to make sure that
     // all reducers use the same hash functions for same bands.
