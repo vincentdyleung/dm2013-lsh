@@ -2,6 +2,7 @@ package org.ethz.las;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Logger;
 
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
@@ -14,7 +15,7 @@ import org.ethz.las.HashFamily;
 
 public class GenerateSignature {
 
-  protected static final Logger log = Logger.getLogger(GenerateSignature.class);
+  //protected static final Logger log = Logger.getLogger(GenerateSignature.class);
 
   /**
    * Mapper outputs the hash value for each file and hash function.
@@ -22,7 +23,7 @@ public class GenerateSignature {
   public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, LongWritable> {
 
     // Decide on the number of hash functions.
-    final int N_HASH_FUNCTIONS = XXX;
+    final int N_HASH_FUNCTIONS = 120;
 
     // Documents contain shingles with index in [0, 255].
     final int N_SHINGLES = 256;
@@ -50,6 +51,11 @@ public class GenerateSignature {
       int shingle = Integer.parseInt(value.toString());
 
       // TODO: Output (document, hash function) -> (hash value) with the goal of calculating Min-hash for this document.
+      for (int i = 0; i < N_HASH_FUNCTIONS; i++) {
+        long hashValue = hashFunctions[i].hash(shingle);
+        outputKey.set(currentFilename + "," + Integer.toString(i));
+        output.collect(outputKey, new LongWritable(hashValue));
+      }
     }
   }
 
@@ -60,6 +66,14 @@ public class GenerateSignature {
 
     public void reduce(Text key, Iterator<LongWritable> values, OutputCollector<Text, LongWritable> output, Reporter reporter) throws IOException {
       // TODO: Calculate and output minhash for document and hash function.
+      long min = 255;
+      while (values.hasNext()) {
+        long val = values.next().get();
+        if (val < min) {
+          min = val;
+        }
+      }
+      output.collect(key, new LongWritable(min));
     }
   }
 
