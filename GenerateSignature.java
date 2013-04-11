@@ -53,7 +53,7 @@ public class GenerateSignature {
       // TODO: Output (document, hash function) -> (hash value) with the goal of calculating Min-hash for this document.
       for (int i = 0; i < N_HASH_FUNCTIONS; i++) {
         long hashValue = hashFunctions[i].hash(shingle);
-        outputKey.set(currentFilename + " " + Integer.toString(i));
+        outputKey.set(currentFilename.split(".")[0] + " " + Integer.toString(i));
         output.collect(outputKey, new LongWritable(hashValue));
       }
     }

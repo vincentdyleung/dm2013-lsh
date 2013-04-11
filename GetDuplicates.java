@@ -15,7 +15,7 @@ import org.ethz.las.HashFamily;
 
 public class GetDuplicates {
 
-  protected static final Logger log = Logger.getLogger(GetDuplicates.class);
+  //protected static final Logger log = Logger.getLogger(GetDuplicates.class);
 
   public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, Text> {
 

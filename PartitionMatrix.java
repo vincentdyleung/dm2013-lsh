@@ -15,7 +15,7 @@ import org.ethz.las.HashFamily;
 
 public class PartitionMatrix {
 
-  protected static final Logger log = Logger.getLogger(PartitionMatrix.class);
+  //protected static final Logger log = Logger.getLogger(PartitionMatrix.class);
 
   public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, Text> {
 
@@ -35,6 +35,9 @@ public class PartitionMatrix {
         long minHash = Long.parseLong(m.group(3));
 
         // TODO: Output the (document) -> (hash function, min hash).
+        Text outputKey = new Text(filename);
+        String outputValue = Integer.toString(hashFunction) + " " + Long.toString(minHash);
+        output.collect(outputKey, new Text(outputValue));
       }
     }
   }
@@ -45,10 +48,10 @@ public class PartitionMatrix {
     final int MAX_COEF = (1 << 20);
 
     // Decide on the number of bands.
-    final int NBANDS = XX;
+    final int NBANDS = 6;
 
     // Decide on the number of rows inside each band.
-    final int NROWS = YY;
+    final int NROWS = 20;
 
     // Seed for the random number generator, used to make sure that
     // all reducers use the same hash functions for same bands.
@@ -78,12 +81,20 @@ public class PartitionMatrix {
       }
 
       // TODO: Calculate and output the hash value of each vector for each band.
+      for (int i = 0; i < NBANDS; i++) {
+        int start = i * NROWS;
+        int end = start + NROWS - 1;
+        long[] bandVector = Arrays.copyOfRange(signature, start, end);
+        long hashValue = hashFunctions[i].hashVector(bandVector);
+        String outputKey = Integer.toString(i) + " " + Long.toString(hashValue);
+        output.collect(new Text(outputKey), key);
+      }
     }
   }
 
   public static void main(String[] args) throws Exception {
 
-    JobConf conf = new JobConf(GenerateSignature.class);
+    JobConf conf = new JobConf(PartitionMatrix.class);
 
     conf.setJobName("PartitionMatrix");
 
